@@ -141,8 +141,10 @@ const unFollowUserHandler = async (req, res) => {
   const followUser = await User.findById(followUserId)
   try {
     const user = await User.findById(req.user.id)
+    console.log(user)
+    console.log(followUser)
     const isFollowing = user.following.some(
-      (id) => id === followUser.id
+      (user) => user.id === followUser.id
     );
 
     if (!isFollowing) {

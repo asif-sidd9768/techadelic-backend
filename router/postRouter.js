@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-const { getAllPosts, createPost, likePostHandler, editPostHandler, deletePostHandler, dislikePostHandler, deletePostImg } = require("../controller/postController")
+const { getAllPosts, createPost, likePostHandler, editPostHandler, deletePostHandler, dislikePostHandler, deletePostImg, createCommentHandler } = require("../controller/postController")
 const { authenticateUser } = require('../middleware/authenticate')
 
 postRouter.get("/", getAllPosts)
@@ -22,5 +22,6 @@ postRouter.post("/dislike/:postId", authenticateUser, dislikePostHandler)
 postRouter.post("/edit/:postId", authenticateUser, upload.single("editedImage"), editPostHandler)
 postRouter.delete("/:postId", authenticateUser, deletePostHandler)
 postRouter.post('/test-del', deletePostImg)
+postRouter.post("/comment/:postId", authenticateUser, createCommentHandler)
 
 module.exports = postRouter

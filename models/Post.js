@@ -1,6 +1,15 @@
 const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
+const commentSchema = new Schema({
+  commentUser: { type: String, required: true },
+  postUser: {type: String},
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  commentImage: String,
+  replies: [this],
+});
+
 const postSchema = new Schema({
   content: {type: String, required: true},
   username: {type: String, required: true},
@@ -13,7 +22,8 @@ const postSchema = new Schema({
   following: [],
   bookmarks: [],
   image: String,
-  video: String
+  video: String,
+  comments: [commentSchema]
 }, { timestamps: true })
 
 postSchema.set('toJSON', {

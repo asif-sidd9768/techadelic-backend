@@ -186,6 +186,24 @@ const deletePostImg = async (req,res) => {
   }
 }
 
+const createCommentHandler = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId)
+    const {commentData} = req.body
+    console.log(commentData)
+    post.comments = [...post.comments, {
+      ...commentData,
+      createAt: new Date(),
+      postUser: post.username
+    }]
+    await post.save()
+    return res.status(200).send(post)
+  }catch(error){
+    console.log(error)
+    return res.status(500).send(error)
+  }
+}
+
 module.exports = {
   getAllPosts,
   createPost,
@@ -193,5 +211,6 @@ module.exports = {
   editPostHandler,
   deletePostHandler,
   dislikePostHandler,
-  deletePostImg
+  deletePostImg,
+  createCommentHandler
 }
