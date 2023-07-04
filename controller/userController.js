@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
 const Post = require("../models/Post")
+const Story = require('../models/Story')
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -141,8 +142,6 @@ const unFollowUserHandler = async (req, res) => {
   const followUser = await User.findById(followUserId)
   try {
     const user = await User.findById(req.user.id)
-    console.log(user)
-    console.log(followUser)
     const isFollowing = user.following.some(
       (user) => user.id === followUser.id
     );
@@ -201,10 +200,10 @@ const updateProfileImgHandler = async (req, res) => {
 
     // Access the Cloudinary URL for the uploaded image
     const imageUrl = result.secure_url;
+    // console.log(req.body)
     const user = await User.findById(req.user.id)
     user.profileImg = imageUrl
     // Update the user's profile image URL in the database or perform any necessary operations
-
     // res.json({ imageUrl });
     await user.save()
     res.status(200).send(user)
@@ -245,6 +244,72 @@ const removeBookmarkPostHandler = async (req, res) => {
   }
 }
 
+const userStoryPostHandler = async (req, res) => {
+  try {
+    console.log(req.body)
+    const user = await User.findById(req.user.id)
+    const file = req.file;
+    if (!file) {
+      res.status(400).json({ error: "No file uploaded" });
+      return;
+    }
+
+    const stories = await Story.find({})
+    console.log(stories, user.id)
+    if(stories.find(({userId}) => userId === req.user.id)){
+      return res.status(400).send({error: "Can't post multiple story."})
+    }
+
+    const result = await cloudinary.uploader.upload(file.path, {
+      public_id: `story_images/${req.user.id}`, // Set a unique identifier for the image, e.g., using the user's ID
+    });
+
+    // Access the Cloudinary URL for the uploaded image
+    const imageUrl = result.secure_url;
+    const story = new Story({
+      userId: req.user.id,
+      userImage: user.profileImg ?? null,
+      content: imageUrl,
+      createdAt: new Date()
+    })
+    user.story = {...story}
+    await story.save()
+    await user.save()
+    return res.status(200).send(user)
+  }catch(error){
+    console.log(error)
+    return res.status(500).send(error)
+  }
+}
+
+const getAllStoriesHandler = async (req, res) => {
+  try {
+    const stories = await Story.find({})
+    const user = await User.findById(req.user.id)
+    // const filteredUser = user.following
+    res.status(200).send(stories)
+  }catch(error){
+    return res.status(500).send(error)
+  }
+}
+
+const storyViewHandler = async (req, res) => {
+  try{
+    console.log(req.params)
+    const { userId, storyId } = req.params
+    const user = await User.findById(userId)
+    const story = await Story.findById(storyId)
+
+    const userExists = story.viewers.some(vwrs => vwrs.userId === user.id);
+    story.viewers = userExists ? story.viewers : [...story.viewers, {userId: user.id, username: user.username}]
+
+    await story.save()
+    return res.status(200).send(story)
+  }catch(error){
+    return res.status(500).send(error)
+  }
+}
+
 module.exports = {
   getAllUsersHandler,
   createUser,
@@ -255,5 +320,8 @@ module.exports = {
   unFollowUserHandler,
   updateUserProfileHandler,
   updateProfileImgHandler,
-  removeBookmarkPostHandler
+  removeBookmarkPostHandler,
+  userStoryPostHandler, 
+  getAllStoriesHandler,
+  storyViewHandler
 }
