@@ -20,6 +20,18 @@ const getAllUsersHandler = async (req, res) => {
   }
 }
 
+const getUserHandler = async (req, res) => {
+  try {
+    const {username} = req.params
+    console.log(username);
+    const user = await User.findOne({username})
+    console.log(user)
+    return res.status(200).send(user)
+  }catch(error){
+    return res.status(500).send(error)
+  }
+}
+
 const createUser = async (req, res) => {
   const { username, password, ...rest } = req.body
 
@@ -57,6 +69,7 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const {username, password} = req.body
 
+  console.log('here')
   try {
     const user = await User.findOne({username:username})
     const correctPwd = user === null ? false : await bcrypt.compare(password, user.passwordHash)
@@ -312,6 +325,7 @@ const storyViewHandler = async (req, res) => {
 
 module.exports = {
   getAllUsersHandler,
+  getUserHandler,
   createUser,
   loginUser,
   checkToken,

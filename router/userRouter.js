@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-const { createUser, loginUser, checkToken, bookmarkPostHandler, followUserHandler, getAllUsersHandler, unFollowUserHandler, updateUserProfileHandler, updateProfileImgHandler, removeBookmarkPostHandler, userStoryPostHandler, getAllStoriesHandler, storyViewHandler } = require("../controller/userController")
+const { createUser, loginUser, checkToken, bookmarkPostHandler, followUserHandler, getAllUsersHandler, unFollowUserHandler, updateUserProfileHandler, updateProfileImgHandler, removeBookmarkPostHandler, userStoryPostHandler, getAllStoriesHandler, storyViewHandler, getUserHandler } = require("../controller/userController")
 const { authenticateUser } = require("../middleware/authenticate")
 
 userRouter.route("/all").get(getAllUsersHandler)
@@ -28,4 +28,5 @@ userRouter.post("/edit", authenticateUser, updateUserProfileHandler)
 userRouter.post('/edit/profile', authenticateUser, upload.single("profileImage"), updateProfileImgHandler)
 userRouter.post("/:userId/story", authenticateUser, upload.single("storyImage"), userStoryPostHandler)
 userRouter.post("/:userId/story/:storyId", authenticateUser, storyViewHandler)
+userRouter.post("/:username", authenticateUser, getUserHandler)
 module.exports = userRouter

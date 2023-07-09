@@ -23,6 +23,7 @@ const postSchema = new Schema({
   bookmarks: [],
   image: String,
   video: String,
+  userImage: String,
   comments: [commentSchema]
 }, { timestamps: true })
 

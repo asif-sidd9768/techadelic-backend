@@ -34,8 +34,10 @@ const getAllPosts = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
+    const user = await User.findById(req.user.id)
     const file = req.file;
     const postData = req.body;
+
     const post = {
       ...postData,
       likes: {
@@ -44,9 +46,10 @@ const createPost = async (req, res) => {
         dislikedBy: [],
       },
       username: req.user.username,
+      userImage: user.profileImg
     };
     const createdPost = await Post.create(post);
-    if(file.mimetype.includes("image")){
+    if(file && file.mimetype && file?.mimetype?.includes("image")){
       const result = await cloudinary.uploader.upload(file.path, {
         public_id: `post_images/${createdPost.id}`, // Set a unique identifier for the image, e.g., using the user's ID
       });
@@ -54,7 +57,8 @@ const createPost = async (req, res) => {
       const imageUrl = result.secure_url;
       createdPost.image = imageUrl
     }
-    if(file.mimetype.includes("video")){
+
+    if(file && file.mimetype && file.mimetype.includes("video")){
       const result = await cloudinary.uploader.upload(file.path, 
       { resource_type: "video", 
         public_id: `post_videos/${createdPost.id}`,
@@ -68,6 +72,7 @@ const createPost = async (req, res) => {
       const imageUrl = result.secure_url;
       createdPost.video = imageUrl
     }
+
     const posts = await Post.find({})
     await createdPost.save()
     // console.log(createdPost)
