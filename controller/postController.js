@@ -19,11 +19,17 @@ const getAllPosts = async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     // Fetch posts from the database with pagination using Mongoose
-    const posts = await Post.find({})
-      .skip(skip)
-      .limit(limitNumber);
+    // const posts = await Post.find({})
+    //   .skip(skip)
+    //   .limit(limitNumber);
 
-    const sortedPosts = sortPost(posts);
+    // const sortedPosts = sortPost(posts);
+
+    const posts = await Post.find({})
+      .sort({ createdAt: -1 }) // Sort posts by descending order of createdAt
+
+    // Calculate the total count of posts in the database
+    const totalCount = await Post.countDocuments();
 
     return res.status(200).send(posts);
   } catch (error) {

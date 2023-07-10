@@ -297,7 +297,7 @@ const userStoryPostHandler = async (req, res) => {
 
 const getAllStoriesHandler = async (req, res) => {
   try {
-    const stories = await Story.find({})
+    const stories = await Story.find({}).sort({ createdAt: -1 })
     const user = await User.findById(req.user.id)
     // const filteredUser = user.following
     res.status(200).send(stories)
